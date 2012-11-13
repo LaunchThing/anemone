@@ -47,20 +47,21 @@ module Anemone
       @response_time = params[:response_time]
       @body = params[:body]
       @error = params[:error]
+      @search = ["//a[@href]", "//frame[@src]"]
 
       @fetched = !params[:code].nil?
     end
 
     #
-    # Array of distinct A tag HREFs from the page
+    # Array of distinct A tag HREFs and FRAME tag SRCs from the page
     #
     def links
       return @links unless @links.nil?
       @links = []
       return @links if !doc
 
-      doc.search("//a[@href]").each do |a|
-        u = a['href']
+      doc.search(*@search).each do |el|
+        u = el['href'] || el['src']
         next if u.nil? or u.empty?
         abs = to_absolute(u) rescue next
         @links << abs if in_domain?(abs)
